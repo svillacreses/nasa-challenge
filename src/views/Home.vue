@@ -27,15 +27,23 @@
             <p class="text-body-1 text--primary" style="margin-bottom: 5px">
               {{ selectedEv.title }}
             </p>
-            <p>Last Record: {{ new Date(selectedEv.lastDate).toDateString() }}</p>
+            <p>
+              Last Record: {{ new Date(selectedEv.lastDate).toDateString() }}
+            </p>
             <div v-for="(source, i) in selectedEv.sources" :key="i">
               <a target="blank" :href="source.url" style="text-decoration: none"
-                ><v-icon size="15" style="margin-right: 5px">mdi-open-in-new</v-icon>More Resources
-                ({{ i + 1 }})
+                ><v-icon size="15" style="margin-right: 5px"
+                  >mdi-open-in-new</v-icon
+                >More Resources ({{ i + 1 }})
               </a>
             </div>
             <div style="width: 100%; display: flex; justify-content: flex-end">
-              <v-btn @click="showInfo = false" style="margin-top: 10px" small color="#03aa6f" dark
+              <v-btn
+                @click="showInfo = false"
+                style="margin-top: 10px"
+                small
+                color="#03aa6f"
+                dark
                 >CERRAR</v-btn
               >
             </div>
@@ -61,7 +69,10 @@
               <div>
                 <img
                   :src="item.icon"
-                  :style="'height: 40px; opacity: ' + (item.eventos.length > 0 ? '1' : '0.3')"
+                  :style="
+                    'height: 40px; opacity: ' +
+                      (item.eventos.length > 0 ? '1' : '0.3')
+                  "
                 />
               </div>
             </v-list-item-content>
@@ -78,7 +89,10 @@
           <v-subheader>{{ selectedCat.title }} </v-subheader>
           <v-list-item-group
             color="#03aa6f"
-            v-if="selectedCat.eventos !== undefined && selectedCat.eventos.length > 0"
+            v-if="
+              selectedCat.eventos !== undefined &&
+                selectedCat.eventos.length > 0
+            "
           >
             <v-list-item
               @click="loadCoor(item.coor)"
@@ -86,7 +100,9 @@
               :key="i"
             >
               <v-list-item-content style="height: 40px">
-                <v-list-item-title v-text="item.title.split(',')[0]"></v-list-item-title>
+                <v-list-item-title
+                  v-text="item.title.split(',')[0]"
+                ></v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -109,7 +125,7 @@ export default {
     Loader,
   },
   created() {
-    axios.get("https://eonet.sci.gsfc.nasa.gov/api/v2.1/events").then((res) => {
+    axios.get("https://eonet.gsfc.nasa.gov/api/v2.1/events").then((res) => {
       this.eventos = [];
       res.data.events.map((ev) => {
         this.eventos.push({
@@ -126,31 +142,36 @@ export default {
         });
       });
 
-      axios.get("https://eonet.sci.gsfc.nasa.gov/api/v2.1/categories").then((res) => {
-        this.categorias = [];
-        res.data.categories.map(async (cat) => {
-          let filtered = await this.filterByCat(cat.id);
-          if (filtered.length > 0 || 1 == 1) {
-            this.categorias.push({
-              id: cat.id,
-              title: cat.title,
-              descrip: cat.description,
-              eventos: filtered,
-              icon: require("@/assets/" + cat.id + ".svg"),
-            });
-          }
-        });
-
-        mapsloader.load().then(() => {
-          this.map = new window.google.maps.Map(document.getElementById("map"), {
-            center: { lat: 42.768858, lng: 2.165487 },
-            zoom: 2,
-            mapTypeControl: false,
-            streetViewControl: false,
+      axios
+        .get("https://eonet.gsfc.nasa.gov/api/v2.1/categories")
+        .then((res) => {
+          this.categorias = [];
+          res.data.categories.map(async (cat) => {
+            let filtered = await this.filterByCat(cat.id);
+            if (filtered.length > 0 || 1 == 1) {
+              this.categorias.push({
+                id: cat.id,
+                title: cat.title,
+                descrip: cat.description,
+                eventos: filtered,
+                icon: require("@/assets/" + cat.id + ".svg"),
+              });
+            }
           });
-          this.isLoading = false;
+
+          mapsloader.load().then(() => {
+            this.map = new window.google.maps.Map(
+              document.getElementById("map"),
+              {
+                center: { lat: 42.768858, lng: 2.165487 },
+                zoom: 2,
+                mapTypeControl: false,
+                streetViewControl: false,
+              }
+            );
+            this.isLoading = false;
+          });
         });
-      });
     });
   },
   data() {
@@ -184,7 +205,9 @@ export default {
         this.map.setCenter(coor);
         this.map.setZoom(8);
         this.map.setMapTypeId(
-          this.selectedCat.id == 15 || this.selectedCat.id == 12 || this.selectedCat.id == 10
+          this.selectedCat.id == 15 ||
+            this.selectedCat.id == 12 ||
+            this.selectedCat.id == 10
             ? "satellite"
             : "roadmap"
         );
